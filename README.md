@@ -32,12 +32,16 @@ cd .. && docker compose up -d --build # 容器内托管 dist，SQLite 数据落�
 
 ## 文档索引（docs/）
 
-| 文档 | 说明 |
+文档按域分目录管理，完整导航与规范见 **[docs/README.md](docs/README.md)**。
+
+| 目录 | 内容 |
 |---|---|
-| 01-PRD | 产品需求 v1.0（已评审） |
-| 07-Spec | 需求规格 v0.2（EARS 句式，含 SSRF 判定） |
-| 02-TRD / 03-API | 技术方案与接口契约 v0.2 |
-| prototype/index.html | 高保真原型 v0.2（UI 先行定稿） |
+| `docs/product/` | PRD v1.0 · 需求规格 Spec v0.2 |
+| `docs/tech/` | TRD · API 契约 v0.2 · **adr/**（架构决策记录） |
+| `docs/quality/` | 自测清单 · 测试记录 |
+| `docs/pm/` | 计划与排期 · 技术债务 |
+| `docs/reviews/` | 评审记录（按日期归档） |
+| `prototype/index.html` | 高保真原型 v0.2（UI 先行定稿） |
 
 ## 状态机
 

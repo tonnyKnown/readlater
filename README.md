@@ -9,7 +9,7 @@
 - **AI**：Ollama（`qwen2.5:3b`，不进容器，走 `host.docker.internal`）
 - **部署**：Docker Compose
 
-## 本地开发
+## 本地开发 563
 
 ```bash
 # 1. 后端（端口 3000）

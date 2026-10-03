@@ -1,6 +1,7 @@
-# API 契约 v0.1：「稍后读 · AI 摘要」
+# API 契约 v0.2：「稍后读 · AI 摘要」
 
-> 基础路径 `/api/v1` ｜ 依据 Spec v0.2 ｜ 前后端并行开发以本文档为准
+> 基础路径 `/api/v1` ｜ 依据 Spec v0.2 + 高保真原型 v0.2 ｜ 前后端并行开发以本文档为准
+> v0.2 变更：新增 `reading_minutes`（原型 v0.2 详情/列表展示阅读时长所需，后端按正文长度估算：中文 400 字/分钟）。教训记录：该字段本应在 UI 定稿后一次写对，v0.1 漏掉即"API 先于 UI"顺序错误的返工成本。
 
 ## 一、通用约定
 
@@ -45,12 +46,12 @@ pending ──抓取成功──► fetched ──摘要成功──► done
 
 ### 2. 文章列表 `GET /articles?page=1&size=20&keyword=`
 
-响应 data：`{ "total": 87, "items": [ { "id", "title", "summary", "status", "created_at", "image_url" } ] }`
+响应 data：`{ "total": 87, "items": [ { "id", "title", "summary", "status", "created_at", "image_url", "reading_minutes" } ] }`
 列表项**不含 content**（省流量）；keyword 匹配标题+正文（S3.2）。
 
 ### 3. 文章详情 `GET /articles/{id}`
 
-响应 data：完整字段（含 content、fail_reason）。前端据 `status` 展示：pending=抓取中、fetched=摘要中、failed=显示失败原因+重试/粘贴正文入口。
+响应 data：完整字段（含 content、fail_reason、reading_minutes）。前端据 `status` 展示：pending=抓取中、fetched=摘要中、failed=显示失败原因+重试/粘贴正文入口。
 
 ### 4. 手动粘贴正文 `PUT /articles/{id}/content`（Spec S1.8）
 

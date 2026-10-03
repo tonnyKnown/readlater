@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>稍后读 · 高保真原型 v0.1</title>
+<title>稍后读 · 高保真原型 v0.2</title>
 <style>
   :root{
     /* ── 设计 token：开发必须只引用这些变量 ── */
@@ -63,7 +63,6 @@
   .b-failed{background:var(--c-fail-bg);color:var(--c-fail-tx)}
   .card p{color:var(--c-text-2);font-size:var(--fs-sm);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .card .meta{color:var(--c-text-2);font-size:12px;margin-top:8px}
-  .tag{display:inline-block;background:var(--c-bg);border-radius:4px;padding:1px 8px;margin-right:6px}
 
   /* 空态 */
   .empty{text-align:center;color:var(--c-text-2);padding:64px 0}
@@ -89,7 +88,7 @@
 <div class="wrap">
   <header>
     <div class="logo">读</div>
-    <div><h1>稍后读</h1><div class="sub">ReadLater · 高保真原型 v0.1 · 依据 Spec v0.2</div></div>
+    <div><h1>稍后读</h1><div class="sub">ReadLater · 高保真原型 v0.2 · 依据 Spec v0.2（标签已裁撤，进 v2 需求池）</div></div>
   </header>
 
   <!-- ════ 视图 1：列表页（默认） ════ -->
@@ -108,17 +107,17 @@
     <div class="card" onclick="go('detail')">
       <div class="card-top"><h3>大厂研发流程中的灰度发布实践</h3><span class="badge b-done">✓ 摘要完成</span></div>
       <p>灰度发布不是一键上线的装饰品，而是风险控制的核心手段。本文以一次真实发布为例，拆解 5%→25%→100% 三批放量背后的判断条件，以及特性开关如何让回滚变成一行配置…</p>
-      <div class="meta"><span class="tag">#研发流程</span><span class="tag">#发布</span>2026-10-03 · example.com</div>
+      <div class="meta">2026-10-03 · example.com</div>
     </div>
     <div class="card">
       <div class="card-top"><h3>SQLite 在单机应用中为什么够用</h3><span class="badge b-fetched">⏳ 已抓取，摘要生成中</span></div>
       <p>正文已抓取成功，正在等待本地模型生成摘要。此状态预期持续不超过 30 秒（Spec S2.3）…</p>
-      <div class="meta"><span class="tag">#数据库</span>2026-10-03 · sqlite.org</div>
+      <div class="meta">2026-10-03 · sqlite.org</div>
     </div>
     <div class="card">
       <div class="card-top"><h3>关于 SSRF 防护的十个常见误区</h3><span class="badge b-pending">· 排队等待</span></div>
       <p>链接已保存，正文尚未抓取。摘要 worker 串行处理，此状态预期不超过 8 秒（Spec S1.9）…</p>
-      <div class="meta"><span class="tag">#安全</span>2026-10-03 · security.blog</div>
+      <div class="meta">2026-10-03 · security.blog</div>
     </div>
     <div class="card">
       <div class="card-top"><h3>某站点的付费墙文章（抓取失败示例）</h3><span class="badge b-failed">✗ 抓取失败</span></div>

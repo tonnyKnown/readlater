@@ -1,5 +1,5 @@
 // 摘要 worker：串行队列（TRD 决策1），本地 Ollama 生成摘要
-import { nextPending, update, getArticle } from './db.js';
+import { nextPending, update, getArticle, requeueStuck } from './db.js';
 import { fetchWithGuard, extractHtml, calcReadingMinutes } from './fetch.js';
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
@@ -21,7 +21,8 @@ async function summarize(text) {
     }),
   });
   if (!res.ok) throw new Error(`Ollama 返回 HTTP ${res.status}`);
-  return (await res.json()).response.trim();
+  // deepseek-r1 等推理模型会输出 <think> 块，剥离后再入库
+  return (await res.json()).response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 }
 
 async function processOne() {

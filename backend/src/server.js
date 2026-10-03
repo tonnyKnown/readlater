@@ -100,7 +100,8 @@ app.get('/health', async () => {
 });
 
 // 生产模式：托管前端构建产物（容器内用 DIST_PATH 指定）
-const dist = process.env.DIST_PATH || path.join(root, 'frontend', 'dist');
+// server.js 位于 <root>/backend/src/，故项目根 = 上两级
+const dist = process.env.DIST_PATH || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'frontend', 'dist');
 if (fs.existsSync(dist)) {
   app.setNotFoundHandler((req, reply) => {
     if (req.url.startsWith('/api/')) return reply.code(404).send({ code: 40401, message: '接口不存在' });

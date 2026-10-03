@@ -14,5 +14,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.8"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.21.4"
   }
 }

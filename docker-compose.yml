@@ -1,0 +1,20 @@
+# TRD §九 部署方案：应用进容器，Ollama 留在宿主机
+services:
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    # 构建前先在宿主机执行：cd frontend && npm run build
+    ports:
+      - "3000:3000"
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=qwen2.5:3b
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - app-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  app-data:

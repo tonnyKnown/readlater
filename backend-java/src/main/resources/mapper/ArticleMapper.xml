@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.readlater.dao.ArticleMapper">
+
+  <!-- 列名与实体属性映射（map-underscore-to-camel-case 已开，此 resultMap 供复杂查询显式使用） -->
+  <resultMap id="BaseResultMap" type="com.readlater.entity.Article">
+    <id column="id" property="id"/>
+    <result column="url" property="url"/>
+    <result column="url_hash" property="urlHash"/>
+    <result column="title" property="title"/>
+    <result column="content" property="content"/>
+    <result column="summary" property="summary"/>
+    <result column="status" property="status"/>
+    <result column="fail_reason" property="failReason"/>
+    <result column="image_url" property="imageUrl"/>
+    <result column="reading_minutes" property="readingMinutes"/>
+    <result column="created_at" property="createdAt"/>
+    <result column="updated_at" property="updatedAt"/>
+  </resultMap>
+
+  <select id="selectByUrlHash" resultMap="BaseResultMap">
+    SELECT * FROM articles WHERE url_hash = #{urlHash} LIMIT 1
+  </select>
+
+  <!-- 取待处理任务：pending（新文章）+ fetched（已持有正文待摘要，含 Spec S1.8 手动粘贴正文后的文章。
+       Node 版只取 pending，导致手动粘贴正文后无人摘要，违反 Spec S1.8"提交正文后继续摘要流程"，此处修正） -->
+  <select id="selectNextPending" resultMap="BaseResultMap">
+    SELECT * FROM articles WHERE status IN ('pending', 'fetched') ORDER BY id ASC LIMIT 1
+  </select>
+
+  <update id="updateFetchSuccess">
+    UPDATE articles
+    <set>
+      title = #{title},
+      image_url = #{imageUrl},
+      content = #{content},
+      reading_minutes = #{readingMinutes},
+      status = 'fetched',
+      fail_reason = '',
+      updated_at = UTC_TIMESTAMP(3)
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateSummary">
+    UPDATE articles
+    <set>
+      summary = #{summary},
+      status = 'done',
+      fail_reason = '',
+      updated_at = UTC_TIMESTAMP(3)
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateStatusById">
+    UPDATE articles
+    <set>
+      status = #{status},
+      fail_reason = #{failReason},
+      updated_at = UTC_TIMESTAMP(3)
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <update id="updateContent">
+    UPDATE articles
+    <set>
+      content = #{content},
+      reading_minutes = #{readingMinutes},
+      status = 'fetched',
+      fail_reason = '',
+      updated_at = UTC_TIMESTAMP(3)
+    </set>
+    WHERE id = #{id}
+  </update>
+
+  <select id="selectPage" resultMap="BaseResultMap">
+    SELECT id, url, title, summary, status, image_url, reading_minutes, created_at
+    FROM articles
+    <where>
+      <if test="keyword != null and keyword != ''">
+        AND (
+          title   LIKE CONCAT('%', #{keyword}, '%')
+          OR summary LIKE CONCAT('%', #{keyword}, '%')
+          OR content LIKE CONCAT('%', #{keyword}, '%')
+        )
+      </if>
+    </where>
+    ORDER BY created_at DESC
+  </select>
+
+  <!-- 启动重入队：仅拨回"无正文的 fetched"（理论上仅进程崩溃瞬间残留的极小窗口）。
+       手动粘贴正文产生的 fetched 有 content，不拨回，交由 worker 直接摘要，避免重新抓取覆盖手动正文 -->
+  <update id="requeueStuck">
+    UPDATE articles
+    <set>
+      status = 'pending',
+      updated_at = UTC_TIMESTAMP(3)
+    </set>
+    WHERE status = 'fetched' AND (content IS NULL OR content = '')
+  </update>
+
+</mapper>

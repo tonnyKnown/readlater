@@ -41,7 +41,7 @@ cd .. && docker compose up -d --build # 容器内托管 dist，SQLite 数据落�
 | `docs/quality/` | 自测清单 · 测试记录 |
 | `docs/pm/` | 计划与排期 · 技术债务 |
 | `docs/reviews/` | 评审记录（按日期归档） |
-| `prototype/index.html` | 高保真原型 v0.2（UI 先行定稿） |
+| `prototype/index.html` | 高保真原型 v0.3（Editorial 方向，UI 先行定稿） |
 
 ## 状态机
 

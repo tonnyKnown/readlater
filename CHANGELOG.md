@@ -12,6 +12,7 @@
 - TRD v0.1：Fastify + SQLite(WAL) + 串行摘要 worker + Docker Compose 部署方案
 - API 契约 v0.2：`/api/v1/articles` 全套接口、错误码规范、文章状态机（pending → fetched → done / failed）
 - 高保真原型 v0.2：列表页 / 详情完成态 / 详情失败降级三视图，四态徽章
+- 高保真原型 v0.3（Editorial 方向，替换 v0.2 成为正式原型）：编辑风排版（衬线标题+正文、栅格列表、细分隔线）、设计 token 升三层架构、深浅双主题、新增「摘要生成中」视图补齐 loading 态、状态标改图标+文字双编码、支持 `?view=&theme=` URL 直达；Spec 行为未改动。v0.2 归档至 `prototype/archive/`
 - 后端 MVP：SSRF 五层校验、抓取（8s 超时）、串行摘要 worker（重启自动重入队）、限流 60 次/分/IP、CORS 白名单
 - 前端 MVP：React + Vite，按原型 token 实现，2 秒轮询驱动状态徽章、搜索空态、失败降级（重试 / 粘贴正文）
 - `GET /health` 附带 Ollama 可达性探测

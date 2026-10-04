@@ -1,0 +1,45 @@
+server:
+  port: ${PORT:3000}
+  tomcat:
+    max-http-form-post-size: 2MB
+
+spring:
+  application:
+    name: readlater
+  servlet:
+    multipart:
+      max-request-size: 2MB
+      max-file-size: 2MB
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:readlater}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:your_actual_password}
+  jackson:
+    # API 契约沿用 Node 版的 snake_case 字段名（created_at / fail_reason / image_url / reading_minutes）
+    property-naming-strategy: SNAKE_CASE
+    serialization:
+      write-dates-as-timestamps: false
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: true
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+
+app:
+  ollama-url: ${OLLAMA_URL:http://127.0.0.1:11434}
+  ollama-model: ${OLLAMA_MODEL:deepseek-r1:7b}
+  summary-timeout-ms: ${SUMMARY_TIMEOUT_MS:30000}
+  fetch-timeout-ms: ${FETCH_TIMEOUT_MS:8000}
+  fetch-max-redirects: ${FETCH_MAX_REDIRECTS:5}
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  dist-path: ${DIST_PATH:../frontend/dist}
+  rate-limit-per-minute: ${RATE_LIMIT_PER_MINUTE:60}

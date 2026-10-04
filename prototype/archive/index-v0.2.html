@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稍后读 · 高保真原型 v0.2</title>
+<style>
+  :root{
+    /* ── 设计 token：开发必须只引用这些变量 ── */
+    --c-primary:#2563eb;        /* 主色 */
+    --c-primary-hover:#1d4ed8;
+    --c-bg:#f6f7f9;             /* 页面底 */
+    --c-surface:#ffffff;        /* 卡片面 */
+    --c-border:#e5e7eb;
+    --c-text:#111827;           /* 主文本 */
+    --c-text-2:#6b7280;         /* 辅助文本 */
+    --c-danger:#dc2626;
+    --c-warn-bg:#fef3c7;  --c-warn-tx:#92400e;   /* pending */
+    --c-info-bg:#dbeafe;  --c-info-tx:#1e40af;   /* fetched */
+    --c-ok-bg:#dcfce7;    --c-ok-tx:#166534;     /* done */
+    --c-fail-bg:#fee2e2;  --c-fail-tx:#991b1b;   /* failed */
+    --r-sm:6px; --r-md:10px; --r-lg:14px;
+    --sp-1:8px; --sp-2:16px; --sp-3:24px; --sp-4:32px;
+    --fs-body:15px; --fs-sm:13px; --fs-title:20px; --fs-h1:26px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--c-bg);color:var(--c-text);font:var(--fs-body)/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:var(--sp-3) var(--sp-2) 80px}
+
+  /* 顶栏 */
+  header{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0}
+  .logo{width:34px;height:34px;border-radius:var(--r-md);background:var(--c-primary);color:#fff;display:grid;place-items:center;font-weight:700}
+  h1{font-size:var(--fs-h1)}
+  header .sub{color:var(--c-text-2);font-size:var(--fs-sm)}
+
+  /* 视图切换（原型专用，真实产品中为路由） */
+  .proto-tabs{position:fixed;right:16px;bottom:16px;display:flex;gap:6px;background:#fff;border:1px solid var(--c-border);border-radius:999px;padding:6px;box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:9}
+  .proto-tabs button{border:0;background:transparent;padding:6px 14px;border-radius:999px;cursor:pointer;font-size:var(--fs-sm);color:var(--c-text-2)}
+  .proto-tabs button.on{background:var(--c-primary);color:#fff}
+
+  /* 保存输入区 */
+  .save-box{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-2);display:flex;gap:var(--sp-1)}
+  .save-box input{flex:1;border:1px solid var(--c-border);border-radius:var(--r-sm);padding:10px 12px;font-size:var(--fs-body);outline:none}
+  .save-box input:focus{border-color:var(--c-primary);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+  .btn{border:0;border-radius:var(--r-sm);padding:10px 18px;font-size:var(--fs-body);cursor:pointer;background:var(--c-primary);color:#fff}
+  .btn:hover{background:var(--c-primary-hover)}
+  .btn:disabled{background:var(--c-border);color:var(--c-text-2);cursor:not-allowed}
+  .hint{color:var(--c-text-2);font-size:var(--fs-sm);margin:var(--sp-1) 0 var(--sp-3)}
+
+  /* 搜索行 */
+  .search-row{display:flex;gap:var(--sp-1);margin-bottom:var(--sp-2)}
+  .search-row input{flex:1;border:1px solid var(--c-border);border-radius:var(--r-sm);padding:8px 12px;font-size:var(--fs-sm);background:var(--c-surface)}
+
+  /* 文章卡片 */
+  .card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-md);padding:var(--sp-2);margin-bottom:var(--sp-1);cursor:pointer;transition:box-shadow .15s}
+  .card:hover{box-shadow:0 4px 12px rgba(0,0,0,.07)}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:var(--sp-1)}
+  .card h3{font-size:var(--fs-title);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .badge{flex-shrink:0;font-size:12px;padding:3px 10px;border-radius:999px;font-weight:500}
+  .b-pending{background:var(--c-warn-bg);color:var(--c-warn-tx)}
+  .b-fetched{background:var(--c-info-bg);color:var(--c-info-tx)}
+  .b-done{background:var(--c-ok-bg);color:var(--c-ok-tx)}
+  .b-failed{background:var(--c-fail-bg);color:var(--c-fail-tx)}
+  .card p{color:var(--c-text-2);font-size:var(--fs-sm);margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card .meta{color:var(--c-text-2);font-size:12px;margin-top:8px}
+
+  /* 空态 */
+  .empty{text-align:center;color:var(--c-text-2);padding:64px 0}
+  .empty .big{font-size:44px;margin-bottom:var(--sp-1)}
+
+  /* 详情页 */
+  .back{color:var(--c-primary);cursor:pointer;font-size:var(--fs-sm);display:inline-block;margin-bottom:var(--sp-2)}
+  .article{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-3)}
+  .article h2{font-size:24px;line-height:1.4}
+  .article .src{color:var(--c-text-2);font-size:var(--fs-sm);margin:var(--sp-1) 0 var(--sp-3);word-break:break-all}
+  .ai-block{background:linear-gradient(180deg,#f0f6ff,#fff);border:1px solid #dbeafe;border-radius:var(--r-md);padding:var(--sp-2);margin-bottom:var(--sp-2)}
+  .ai-block .label{font-size:12px;font-weight:600;color:var(--c-primary);letter-spacing:1px;margin-bottom:6px}
+  .ai-block .summary{line-height:1.8}
+  .ai-skeleton{height:14px;border-radius:4px;background:linear-gradient(90deg,#eef2f7 25%,#e2e8f0 50%,#eef2f7 75%);background-size:200% 100%;animation:sh 1.2s infinite;margin:8px 0}
+  @keyframes sh{to{background-position:-200% 0}}
+  .fail-box{background:var(--c-fail-bg);border-radius:var(--r-md);padding:var(--sp-2);margin-bottom:var(--sp-2);color:var(--c-fail-tx);font-size:var(--fs-sm)}
+  .fail-box button{margin-top:8px;margin-right:8px;background:var(--c-fail-tx)}
+  .content p{margin-bottom:var(--sp-1);color:#374151}
+  @media(max-width:640px){.save-box{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">读</div>
+    <div><h1>稍后读</h1><div class="sub">ReadLater · 高保真原型 v0.2 · 依据 Spec v0.2（标签已裁撤，进 v2 需求池）</div></div>
+  </header>
+
+  <!-- ════ 视图 1：列表页（默认） ════ -->
+  <section id="view-list">
+    <div class="save-box">
+      <input placeholder="粘贴文章链接，如 https://example.com/post/123">
+      <button class="btn">保存并摘要</button>
+    </div>
+    <div class="hint">支持 http/https 公网链接 · 反爬文章可保存后手动粘贴正文</div>
+
+    <div class="search-row">
+      <input placeholder="🔍 搜索标题与摘要…">
+    </div>
+
+    <!-- 状态机四态各出一张卡片：走查重点 -->
+    <div class="card" onclick="go('detail')">
+      <div class="card-top"><h3>大厂研发流程中的灰度发布实践</h3><span class="badge b-done">✓ 摘要完成</span></div>
+      <p>灰度发布不是一键上线的装饰品，而是风险控制的核心手段。本文以一次真实发布为例，拆解 5%→25%→100% 三批放量背后的判断条件，以及特性开关如何让回滚变成一行配置…</p>
+      <div class="meta">2026-10-03 · example.com</div>
+    </div>
+    <div class="card">
+      <div class="card-top"><h3>SQLite 在单机应用中为什么够用</h3><span class="badge b-fetched">⏳ 已抓取，摘要生成中</span></div>
+      <p>正文已抓取成功，正在等待本地模型生成摘要。此状态预期持续不超过 30 秒（Spec S2.3）…</p>
+      <div class="meta">2026-10-03 · sqlite.org</div>
+    </div>
+    <div class="card">
+      <div class="card-top"><h3>关于 SSRF 防护的十个常见误区</h3><span class="badge b-pending">· 排队等待</span></div>
+      <p>链接已保存，正文尚未抓取。摘要 worker 串行处理，此状态预期不超过 8 秒（Spec S1.9）…</p>
+      <div class="meta">2026-10-03 · security.blog</div>
+    </div>
+    <div class="card">
+      <div class="card-top"><h3>某站点的付费墙文章（抓取失败示例）</h3><span class="badge b-failed">✗ 抓取失败</span></div>
+      <p>该站点返回 403。可点击进入详情页，手动粘贴正文后重新生成摘要（Spec S1.8 降级方案）。</p>
+      <div class="meta">2026-10-03 · paywall.example</div>
+    </div>
+
+    <!-- 空态（走查清单 B 空态项）：搜索无结果时展示 -->
+    <div class="empty" id="empty-state" style="display:none">
+      <div class="big">🔍</div>
+      没有匹配的文章<br><span style="font-size:13px">换个关键词试试，或粘贴一个新链接开始</span>
+    </div>
+  </section>
+
+  <!-- ════ 视图 2：详情页 ════ -->
+  <section id="view-detail" style="display:none">
+    <span class="back" onclick="go('list')">← 返回列表</span>
+    <div class="article">
+      <h2>大厂研发流程中的灰度发布实践</h2>
+      <div class="src">https://example.com/post/123 · 保存于 2026-10-03 14:32 · 阅读约 12 分钟</div>
+
+      <!-- done 态的 AI 摘要区 -->
+      <div class="ai-block">
+        <div class="label">AI 摘要 · qwen2.5:3b 本地生成</div>
+        <div class="summary">本文以一次真实事故为引，说明灰度发布在风险控制中的位置。核心观点有三：① 放量节奏必须绑定可观测指标（错误率 &lt; 0.1% 才进下一批）；② 特性开关让"回滚"从部署动作降级为配置变更，MTTR 从分钟级降到秒级；③ 灰度期间的用户反馈必须有一键上报通道，否则灰度只剩技术意义、失去产品意义。文末给出了一个三人小团队也能落地的最小灰度方案。</div>
+      </div>
+
+      <div class="content">
+        <p>凌晨两点，告警群炸了。错误率从 0.02% 窜到 3.7%，值班同学的第一反应不是回滚，而是"再看看是不是抖动"——这个迟疑的十分钟，正是本文要讨论的问题…</p>
+        <p>（此处为抓取的正文内容，原型中截断展示。真实产品中按阅读进度记录位置，该能力记入 v2 需求池。）</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ 视图 3：详情页-摘要失败态（Spec S1.8 降级交互） ════ -->
+  <section id="view-failed" style="display:none">
+    <span class="back" onclick="go('list')">← 返回列表</span>
+    <div class="article">
+      <h2>某站点的付费墙文章</h2>
+      <div class="src">https://paywall.example/post/88 · 保存于 2026-10-03 15:01</div>
+
+      <div class="fail-box">
+        <b>摘要生成失败</b>：目标站点拒绝抓取（HTTP 403），正文为空。<br>
+        你可以手动粘贴正文，或稍后重试。
+        <br>
+        <button class="btn">重试抓取</button>
+        <button class="btn" style="background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border)">粘贴正文</button>
+      </div>
+
+      <div class="content" style="color:var(--c-text-2)">
+        <p>正文区域当前为空。粘贴正文后，摘要流程从"手动内容"入口重新入队（API: PUT /articles/{id}/content）。</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 原型专用切换器 -->
+<div class="proto-tabs">
+  <button class="on" onclick="go('list',this)">① 列表页</button>
+  <button onclick="go('detail',this)">② 详情·摘要完成</button>
+  <button onclick="go('failed',this)">③ 详情·失败降级</button>
+</div>
+<script>
+function go(v,btn){
+  for(const id of['list','detail','failed'])document.getElementById('view-'+id).style.display=id===v?'':'none';
+  document.querySelectorAll('.proto-tabs button').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  scrollTo(0,0);
+}
+/* 搜索交互演示：无结果时显示空态（走查项） */
+document.querySelector('.search-row input').addEventListener('input',e=>{
+  const q=e.target.value.trim();
+  const cards=[...document.querySelectorAll('#view-list .card')];
+  let n=0;
+  cards.forEach(c=>{const hit=!q||c.textContent.includes(q);c.style.display=hit?'':'none';if(hit)n++;});
+  document.getElementById('empty-state').style.display=n?'none':'';
+});
+</script>
+</body>
+</html>
